@@ -46,7 +46,7 @@ app.get("/api/circulating-supply", async (req, res) => {
 
 app.get("/api/max-supply", async (req, res) => {
   try {
-    const supply = MaxSupply();
+    const supply = await MaxSupply();
     res.json({ maxSupply: supply.toString() });
   } catch (error) {
     console.error(error);
@@ -56,7 +56,7 @@ app.get("/api/max-supply", async (req, res) => {
 
 app.get("/api/total-supply", async (req, res) => {
   try {
-    const supply = TotalSupply();
+    const supply = await TotalSupply();
     res.json({ totalSupply: supply.toString() });
   } catch (error) {
     console.error(error);
