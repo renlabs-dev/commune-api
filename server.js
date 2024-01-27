@@ -22,7 +22,8 @@ async function getCirculatingSupply() {
 
   await api.disconnect();
 
-  return circulatingSupply;
+  // convert from nano
+  return circulatingSupply / 10 ** 9;
 }
 
 app.get("/api/circulating-supply", async (req, res) => {
