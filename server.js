@@ -26,6 +26,14 @@ async function getCirculatingSupply() {
   return circulatingSupply / 10 ** 9;
 }
 
+function MaxSupply() {
+  return 1_000_000_000;
+}
+
+function TotalSupply() {
+  return 1_000_000_000;
+}
+
 app.get("/api/circulating-supply", async (req, res) => {
   try {
     const supply = await getCirculatingSupply();
@@ -33,6 +41,26 @@ app.get("/api/circulating-supply", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Error fetching circulating supply");
+  }
+});
+
+app.get("/api/max-supply", async (req, res) => {
+  try {
+    const supply = MaxSupply();
+    res.json({ maxSupply: supply.toString() });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching max supply");
+  }
+});
+
+app.get("/api/total-supply", async (req, res) => {
+  try {
+    const supply = TotalSupply();
+    res.json({ totalSupply: supply.toString() });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching total supply");
   }
 });
 
