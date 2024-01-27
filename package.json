@@ -1,0 +1,11 @@
+{
+  "name": "communeapi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "supreme <zimulajan0@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@polkadot/api": "^10.11.2",
+    "express": "^4.18.2"
+  }
+}
