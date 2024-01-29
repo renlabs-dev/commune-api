@@ -2,7 +2,7 @@ const express = require("express");
 const { ApiPromise, WsProvider } = require("@polkadot/api");
 
 const app = express();
-const port = 3000;
+const port = 80;
 
 async function getCirculatingSupply() {
   const wsProvider = new WsProvider(
@@ -14,7 +14,7 @@ async function getCirculatingSupply() {
   const totalStakeEntries = await api.query.subspaceModule.totalStake.entries();
 
   let totalStakeSum = api.createType("Balance", 0);
-  totalStakeEntries.forEach(([key, value]) => {
+  totalStakeEntries.forEach(([_, value]) => {
     totalStakeSum = totalStakeSum.add(value);
   });
 
@@ -34,7 +34,7 @@ function TotalSupply() {
   return 1_000_000_000;
 }
 
-app.get("/api/circulating-supply", async (req, res) => {
+app.get("/api/circulating-supply", async (_, res) => {
   try {
     const supply = await getCirculatingSupply();
     res.json({ circulatingSupply: supply.toString() });
@@ -44,7 +44,7 @@ app.get("/api/circulating-supply", async (req, res) => {
   }
 });
 
-app.get("/api/max-supply", async (req, res) => {
+app.get("/api/max-supply", async (_, res) => {
   try {
     const supply = await MaxSupply();
     res.json({ maxSupply: supply.toString() });
@@ -54,7 +54,7 @@ app.get("/api/max-supply", async (req, res) => {
   }
 });
 
-app.get("/api/total-supply", async (req, res) => {
+app.get("/api/total-supply", async (_, res) => {
   try {
     const supply = await TotalSupply();
     res.json({ totalSupply: supply.toString() });
