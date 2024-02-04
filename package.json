@@ -2,10 +2,10 @@
   "name": "communeapi",
   "version": "1.0.0",
   "main": "index.js",
+  "repository": "git@github.com:Supremesource/communeapi.git",
   "author": "supreme <zimulajan0@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@polkadot/api": "^10.11.2",
-    "express": "^4.18.2"
+    "@polkadot/api": "6.1.2"
   }
 }
