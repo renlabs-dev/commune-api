@@ -6,7 +6,7 @@ const port = 80;
 
 async function getCirculatingSupply() {
   const wsProvider = new WsProvider(
-    "wss://commune.api.onfinality.io/public-ws"
+    "wss://commune-archive-node-0.agicommies.org"
   );
   const api = await ApiPromise.create({ provider: wsProvider });
 

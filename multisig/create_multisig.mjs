@@ -4,7 +4,8 @@ import { encodeMultiAddress, decodeAddress } from "@polkadot/util-crypto";
 import { ApiPromise, Keyring } from '@polkadot/api';
 import { WsProvider } from '@polkadot/rpc-provider';
 
-const nodeWs = "ws://127.0.0.1:9944"
+const nodeWs = "wss://commune.api.onfinality.io/public-ws"
+
 const provider = new WsProvider(nodeWs);
 const api = await ApiPromise.create({ provider });
 const keyring = new Keyring({ type: 'sr25519' });

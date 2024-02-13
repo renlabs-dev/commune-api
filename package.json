@@ -6,6 +6,7 @@
   "author": "supreme <zimulajan0@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@polkadot/api": "6.1.2"
+    "@polkadot/api": "6.1.2",
+    "express": "^4.18.2"
   }
 }
