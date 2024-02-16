@@ -22,17 +22,16 @@ async function processBlock(api, blockNumber) {
 
       const txHash = extrinsic.hash.toHex();
 
-      // Merge events into the extrinsic object
       return {
         blockNumber,
         index,
-        txHash, 
+        txHash,
         extrinsic: {
-          ...extrinsic.toHuman(), 
+          ...extrinsic.toHuman(),  
           events: relevantEvents 
         }
       };
-    }).filter(extrinsic => extrinsic.extrinsic.events.length > 0); // Optional: Filter out extrinsics without relevant events
+    }).filter(extrinsic => extrinsic.extrinsic.events.length > 0); 
 
     const dataToWrite = {
       blockNumber,
@@ -40,7 +39,17 @@ async function processBlock(api, blockNumber) {
       extrinsics: mergedExtrinsics 
     };
 
-    fs.appendFileSync(filePath, JSON.stringify(dataToWrite, null, 2) + '\n');
+    // Ensure valid JSON structure when appending
+    if (fs.existsSync(filePath)) {
+      // Read existing data, parse it, append new data, and write back
+      let existingData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (!Array.isArray(existingData)) existingData = []; // Ensure existing data is an array
+      existingData.push(dataToWrite); // Append new block data
+      fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2)); // Write updated array back to file
+    } else {
+      // File doesn't exist, write the first element as an array
+      fs.writeFileSync(filePath, JSON.stringify([dataToWrite], null, 2));
+    }
   } catch (error) {
     console.error(`Error fetching block ${blockNumber}:`, error);
   }
