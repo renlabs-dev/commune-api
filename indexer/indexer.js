@@ -6,25 +6,41 @@ const path = require('path');
 // Alternatively, you can use a database
 const filePath = path.join(__dirname, 'extrinsics.json');
 
+
 async function processBlock(api, blockNumber) {
   try {
     const hash = await api.rpc.chain.getBlockHash(blockNumber);
     const block = await api.rpc.chain.getBlock(hash);
+    const events = await api.query.system.events.at(hash);
 
-    let extrinsics = block.block.extrinsics.map((extrinsic, index) => ({
+    let extrinsicsWithStatus = block.block.extrinsics.map((extrinsic, index) => {
+      const isSuccess = events.some(event => {
+        const { event: { _, method }, phase } = event;
+        return phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index) &&
+               (method === 'ExtrinsicSuccess' || method === 'ExtrinsicFailed');
+      });
+
+      return {
+        blockNumber,
+        index,
+        extrinsic: extrinsic.toHuman(),
+        status: isSuccess ? 'Success' : 'Failure'
+      };
+    });
+
+    const dataToWrite = {
       blockNumber,
-      index,
-      extrinsic: extrinsic.toHuman()
-    }));
+      blockHash: hash.toHex(),
+      events: events.toHuman(),
+      extrinsics: extrinsicsWithStatus
+    };
 
     // Append to file
-    // Db would be preferred
-    fs.appendFileSync(filePath, JSON.stringify(extrinsics, null, 2) + '\n');
+    fs.appendFileSync(filePath, JSON.stringify(dataToWrite, null, 2) + '\n');
   } catch (error) {
     console.error(`Error fetching block ${blockNumber}:`, error);
   }
 }
-
 async function main() {
   // If looking to use a custom endpoint please specify the `--prunning` flag to be `archive`
   // or other endpoint, that supports historical data
@@ -35,7 +51,7 @@ async function main() {
   const lastHeader = await api.rpc.chain.getHeader();
   const lastBlockNumber = lastHeader.number.toNumber();
 
-  const genesisBlock = 0;
+  const genesisBlock = 22576;
   for (let i = genesisBlock; i <= lastBlockNumber; i++) {
     await processBlock(api, i);
   }
