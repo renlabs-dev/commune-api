@@ -13,34 +13,39 @@ async function processBlock(api, blockNumber) {
     const block = await api.rpc.chain.getBlock(hash);
     const events = await api.query.system.events.at(hash);
 
-    let extrinsicsWithStatus = block.block.extrinsics.map((extrinsic, index) => {
-      const isSuccess = events.some(event => {
-        const { event: { _, method }, phase } = event;
-        return phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index) &&
-               (method === 'ExtrinsicSuccess' || method === 'ExtrinsicFailed');
-      });
+    // Filter and map extrinsics to include relevant events directly within each extrinsic
+    let mergedExtrinsics = block.block.extrinsics.map((extrinsic, index) => {
+      const relevantEvents = events.filter(event => {
+        const { phase } = event;
+        return phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index);
+      }).map(event => event.toHuman());
 
+      const txHash = extrinsic.hash.toHex();
+
+      // Merge events into the extrinsic object
       return {
         blockNumber,
         index,
-        extrinsic: extrinsic.toHuman(),
-        status: isSuccess ? 'Success' : 'Failure'
+        txHash, 
+        extrinsic: {
+          ...extrinsic.toHuman(), 
+          events: relevantEvents 
+        }
       };
-    });
+    }).filter(extrinsic => extrinsic.extrinsic.events.length > 0); // Optional: Filter out extrinsics without relevant events
 
     const dataToWrite = {
       blockNumber,
       blockHash: hash.toHex(),
-      events: events.toHuman(),
-      extrinsics: extrinsicsWithStatus
+      extrinsics: mergedExtrinsics 
     };
 
-    // Append to file
     fs.appendFileSync(filePath, JSON.stringify(dataToWrite, null, 2) + '\n');
   } catch (error) {
     console.error(`Error fetching block ${blockNumber}:`, error);
   }
 }
+
 async function main() {
   // If looking to use a custom endpoint please specify the `--prunning` flag to be `archive`
   // or other endpoint, that supports historical data
